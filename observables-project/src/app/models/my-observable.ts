@@ -7,9 +7,21 @@ import { Observer } from "rxjs";
 export class MyObservable<T> {
   private observers: Observer<T>[] = [];
 
-  public emit(value: T) {
+  public next(value: T) {
     for (const observer of this.observers) {
       observer.next(value);
+    }
+  }
+
+  public error(error: unknown) {
+    for (const observer of this.observers) {
+      observer.error(error);
+    }
+  }
+
+  public complete() {
+    for (const observer of this.observers) {
+      observer.complete();
     }
   }
 
@@ -18,5 +30,12 @@ export class MyObservable<T> {
     this.observers.forEach(o =>
       o.next(value)
     )
+    return {
+      unsubscribe: () => {
+        const observerIndex = this.observers.indexOf(observer);
+        if (observerIndex != -1)
+          this.observers.splice(observerIndex, 1)
+      }
+    }
   }
 }
